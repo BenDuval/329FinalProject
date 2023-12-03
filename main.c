@@ -42,6 +42,7 @@ void SystemClock_Config(void);
 void LCD_display_sentence(const char *sentence);
 void LCD_config(void);
 void config_Piezo(void);
+void lock_Box(void);
 void led_on(uint16_t pin, GPIO_TypeDef *port);
 void led_off(uint16_t pin, GPIO_TypeDef *port);
 
@@ -73,14 +74,31 @@ int main(void)
   /* Initialize all configured peripherals */
 
   /* USER CODE BEGIN 2 */
-    program_State current_State; // defined current State to hold current state of program
-    current_State = wait_State; // set current state to wait State
-    ADC_init(); // Initialize ADC
-    LCD_config(); // Configure LCD
+	led_off(7, GPIOB);
+	led_off(14, GPIOB);
+	led_off(7, GPIOC);
+	program_State current_State; // defined current State to hold current state of program
+	current_State = wait_State; // set current state to wait State
+	ADC_init(); // Initialize ADC
+	LCD_config(); // Configure LCD
 	LCD_init(); // initialize LCD
 	config_Piezo(); // configure Piezo for PB0
 
+    // Configure PB5 as input with internal pull-up for reed sensor
+    configurePin(5, GPIOB, CONFIG_MODE_INPUT, CONFIG_TYPE_PUSHPULL,
+                 CONFIG_SPEED_LOW, CONFIG_PUPD_PULLUP);
 
+    // Configure PC7, PB7, and PB14 as output
+    configurePin(7, GPIOC, CONFIG_MODE_OUTPUT, CONFIG_TYPE_PUSHPULL,
+                 CONFIG_SPEED_LOW, CONFIG_PUPD_NONE);
+
+    configurePin(7, GPIOB, CONFIG_MODE_OUTPUT, CONFIG_TYPE_PUSHPULL,
+                 CONFIG_SPEED_LOW, CONFIG_PUPD_NONE);
+
+    configurePin(14, GPIOB, CONFIG_MODE_OUTPUT, CONFIG_TYPE_PUSHPULL,
+                 CONFIG_SPEED_LOW, CONFIG_PUPD_NONE);
+
+    //lock_Box(); // test for reed sensor
 
 	switch (current_State) {
 	case wait_State:
@@ -90,14 +108,16 @@ int main(void)
 		delay_us(50); // delay 50 microseconds
 		LCD_display_sentence("Welcome"); // Display Welcome
 		delay_ms(10); // delay 10 milliseconds
-		// wait for something to transition states? first knock? turn on led to indicate state transistion
-		// if first knock detected, transisiton
+		// wait for something to transition states? first knock? turn on led to indicate state transition
+		// if first knock detected, transition
 		current_State = password_Check;
 		break;
 	case password_Check:
 		led_on(7,GPIOB);
 		LCD_command(0x01); // clear screen
-		delay_us(50); // delay for 50 micrseconds
+		delay_us(50); // delay for 50 microseconds
+		LCD_command(0x02); // go home
+		delay_us(50); // delay for 50 microseconds
 		LCD_display_sentence("Checking passwords...");
 		// Check EEPROM for saved data?
 		// if saved data, current_State = unlock state; else setPassword state;
@@ -159,7 +179,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_8;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -244,8 +264,23 @@ void unlock_Box(void) {
 }
 
 void lock_Box(void) {
-	// something even more special
-	// Call function to turn on servo
+	while(1) {
+
+	    // Read the state of PB5
+	    if (GPIOB->IDR & (1 << 5)) {
+	    	led_on(14,GPIOB);
+	         //PB5 is HIGH, so the box is open
+			LCD_command(0x01); // clear screen
+			delay_us(50); // delay for 50 microseconds
+			LCD_command(0x02); // go home
+			delay_us(50); // delay for 50 microseconds
+			LCD_display_sentence("Close box");
+	    } else {
+	    	led_on(14,GPIOB);
+	        // PB5 is LOW, so the box is closed
+	        // Active servo to lock box
+	    }
+	}
 }
 
 void config_Piezo(void) {
@@ -294,3 +329,4 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
