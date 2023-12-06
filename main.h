@@ -1,3 +1,4 @@
+
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -21,7 +22,7 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
 #define __MAIN_H
-#define LKnockThreshold 50
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -46,6 +47,8 @@ lock_State,
 reset_password
 } program_State;
 
+
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -66,6 +69,15 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define KNOCK_THRESHOLD 200
+#define MAX_KNOCKS 3
+//#define VREF 3300
+//#define ADC_RESOLUTION 4095
+#define knockAddress1 0x1111
+#define knockAddress2 0x1112
+#define INTERVAL_ADDRESS_1 0x1113
+#define INTERVAL_ADDRESS_2 0x1114
+#define PASSWORD_ADDRESS 0x1115
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
 #define LD3_Pin GPIO_PIN_14
@@ -106,3 +118,6 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
+
+
+
