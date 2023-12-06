@@ -258,9 +258,8 @@ void LCD_config(void) {
 		CONFIG_PUPD_NONE);
 	}
 }
-
 void unlock_Box(void) {
-	// something special
+	activateSolenoid();
 }
 void lock_Box(void) {
 	while(1) {
