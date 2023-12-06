@@ -262,7 +262,6 @@ void LCD_config(void) {
 void unlock_Box(void) {
 	// something special
 }
-
 void lock_Box(void) {
 	while(1) {
 
@@ -278,26 +277,14 @@ void lock_Box(void) {
 	    } else {
 	    	led_on(14,GPIOB);
 	        // PB5 is LOW, so the box is closed
-	        // Active servo to lock box
+	    	activateSolenoid();
+	    	delay_ms(5);
+	    	deactivateSolenoid();
+
 	    }
 	}
 }
 
-void config_Piezo(void) {
-	configurePin(0,GPIOB, CONFIG_MODE_ANALOG, CONFIG_TYPE_PUSHPULL,CONFIG_SPEED_LOW,CONFIG_PUPD_NONE);
-}
-
-void servo_Config(void) {
-	// Configure a pin to output 3.3V , then send that to an amplifier to get 12v for servo input
-}
-
-void turn_servo_on(void) {
-	// OR with 1
-}
-
-void turn_servo_off(void) {
-	// AND with 0
-}
 
 void comparator_init() {
     // Configure PB2 as analog input for COMP1_INP
