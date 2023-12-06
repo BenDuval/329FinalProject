@@ -312,7 +312,21 @@ void comparator_init() {
     // Configure PB3 as analog input for COMP2_INM
     configurePin(3, GPIOB, CONFIG_MODE_ANALOG, CONFIG_TYPE_PUSHPULL, CONFIG_SPEED_LOW, CONFIG_PUPD_NONE);
 }
+void config_Solenoid(void) {
+    // Configure PC6 as output to drive relay controlling solenoid
+    configurePin(6, GPIOC, CONFIG_MODE_OUTPUT, CONFIG_TYPE_PUSHPULL,
+    			CONFIG_SPEED_LOW, CONFIG_PUPD_NONE);
+}
 
+void activateSolenoid(void) {
+	// Set PC6 high to activate the solenoid
+	 GPIOC->BSRR = (1 << 6); // set PC6
+}
+
+void deactivateSolenoid(void) {
+    // Set PC6 low to deactivate the solenoid
+    GPIOC->BRR = (1 << 6); // Reset PC6
+}
 #ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
